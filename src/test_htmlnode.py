@@ -49,7 +49,7 @@ class TestHTMLNode(unittest.TestCase):
             "propb": "valueb",
             "propc": "valuec",
         })
-        self.assertEqual(node.props_to_html(), "propa=valuea propb=valueb propc=valuec")
+        self.assertEqual(node.props_to_html(), "propa=\"valuea\" propb=\"valueb\" propc=\"valuec\"")
 
 
 if __name__ == "__main__":
