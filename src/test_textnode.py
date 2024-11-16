@@ -1,6 +1,6 @@
 import unittest
 
-from textnode import TextNode, TextType, text_node_to_html_node
+from textnode import TextNode, TextType, text_node_to_html_node, split_nodes_delimiter
 
 
 class TestTextNode(unittest.TestCase):
@@ -52,6 +52,15 @@ class TestTextNode(unittest.TestCase):
         html = text_node_to_html_node(node).to_html()
         self.assertEqual(html, "<img src=\"https://boot.dev/favicon.ico\" alt=\"Text\"></img>")
 
+    def test_to_html_node_link(self):
+        node = TextNode("This is text with a `code block` word", TextType.NORMAL)
+        expect_nodes = [
+            TextNode("This is text with a ", TextType.NORMAL),
+            TextNode("code block", TextType.CODE),
+            TextNode(" word", TextType.NORMAL),
+        ]
+        new_nodes = split_nodes_delimiter([node], "`", TextType.CODE)
+        self.assertEqual(new_nodes, expect_nodes)
 
 if __name__ == "__main__":
     unittest.main()
