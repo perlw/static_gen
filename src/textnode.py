@@ -43,24 +43,33 @@ def text_node_to_html_node(text_node: TextNode) -> LeafNode:
         case _:
             raise Exception("unknown text type")
 
-def split_nodes_delimiter(old_nodes: list[TextNode], delimiter: str, text_type: TextType):
+def split_nodes_delimiter(old_nodes: list[TextNode], delimiter: str, text_type: TextType) -> list[TextNode]:
     new_nodes = []
     for node in old_nodes:
         if node.text_type != TextType.NORMAL:
             new_nodes.append(node)
             continue
 
-        separated = re.split(f"({delimiter})", node.text)
         i = 0
-        while i < len(separated):
-            if separated[i] != delimiter:
-                new_nodes.append(TextNode(separated[i], TextType.NORMAL))
-                i += 1
-                continue
-
-            if i + 2 > len(separated):
-                raise Exception("no closing delimited")
-            new_nodes.append(TextNode(separated[i + 1], text_type))
-            i += 3
+        while i < len(node.text):
+            start = node.text.find(delimiter, i)
+            if start == -1:
+                new_nodes.append(TextNode(node.text[i:], TextType.NORMAL))
+                break
+            elif start - i > 1:
+                new_nodes.append(TextNode(node.text[i:start], TextType.NORMAL))
+            stop = node.text.find(delimiter, start + len(delimiter))
+            if stop == -1:
+                raise Exception("no closing delimiter")
+            new_nodes.append(TextNode(node.text[start + len(delimiter):stop], text_type))
+            i = stop + len(delimiter)
 
     return new_nodes
+
+def extract_markdown_images(text: str) -> list[tuple[str, str]]:
+    # ![rick roll](https://i.imgur.com/aKaOqIh.gif)
+    pass
+
+def extract_markdown_links(text: str) -> list[tuple[str, str]]:
+    # [to boot dev](https://www.boot.dev)
+    pass

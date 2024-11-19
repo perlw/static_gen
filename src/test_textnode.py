@@ -52,7 +52,7 @@ class TestTextNode(unittest.TestCase):
         html = text_node_to_html_node(node).to_html()
         self.assertEqual(html, "<img src=\"https://boot.dev/favicon.ico\" alt=\"Text\"></img>")
 
-    def test_to_html_node_link(self):
+    def test_split_nodes_simple(self):
         node = TextNode("This is text with a `code block` word", TextType.NORMAL)
         expect_nodes = [
             TextNode("This is text with a ", TextType.NORMAL),
@@ -61,6 +61,23 @@ class TestTextNode(unittest.TestCase):
         ]
         new_nodes = split_nodes_delimiter([node], "`", TextType.CODE)
         self.assertEqual(new_nodes, expect_nodes)
+
+    def test_split_nodes_multiple(self):
+        node = TextNode("This is an *italic text* with a **bold** word", TextType.NORMAL)
+        new_nodes = split_nodes_delimiter([node], "**", TextType.BOLD)
+        new_nodes = split_nodes_delimiter(new_nodes, "*", TextType.ITALIC)
+        expect_nodes = [
+            TextNode("This is an ", TextType.NORMAL),
+            TextNode("italic text", TextType.ITALIC),
+            TextNode(" with a ", TextType.NORMAL),
+            TextNode("bold", TextType.BOLD),
+            TextNode(" word", TextType.NORMAL),
+        ]
+        self.assertEqual(new_nodes, expect_nodes)
+
+    def test_split_nodes_unclosed(self):
+        node = TextNode("This is *text* with a *broken italic", TextType.NORMAL)
+        self.assertRaises(Exception, split_nodes_delimiter, [node], "*", TextType.ITALIC)
 
 if __name__ == "__main__":
     unittest.main()
