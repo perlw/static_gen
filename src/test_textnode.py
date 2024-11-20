@@ -1,6 +1,6 @@
 import unittest
 
-from textnode import TextNode, TextType, text_node_to_html_node, split_nodes_delimiter, extract_markdown_images, extract_markdown_links
+from textnode import TextNode, TextType, text_node_to_html_node, split_nodes_delimiter, extract_markdown_images, extract_markdown_links, split_nodes_images, split_nodes_links
 
 
 class TestTextNode(unittest.TestCase):
@@ -93,6 +93,36 @@ class TestTextNode(unittest.TestCase):
         extracted = extract_markdown_links("This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and a link [to boot dev](https://www.boot.dev)")
         expected = [("to boot dev", "https://www.boot.dev")]
         self.assertEqual(extracted, expected)
+
+    def test_split_nodes_images(self):
+        node = TextNode(
+            "This is text with an image ![boot dev favicon](https://www.boot.dev/favicon.ico) and ![dev boot favicon](https://www.dev.boot/favicon.ico)",
+            TextType.NORMAL,
+        )
+        new_nodes = split_nodes_images([node])
+        expected = [
+            TextNode("This is text with an image ", TextType.NORMAL),
+            TextNode("boot dev favicon", TextType.IMAGE, "https://www.boot.dev/favicon.ico"),
+            TextNode(" and ", TextType.NORMAL),
+            TextNode("dev boot favicon", TextType.IMAGE, "https://www.dev.boot/favicon.ico"),
+        ]
+        self.assertEqual(new_nodes, expected)
+
+    def test_split_nodes_links(self):
+        node = TextNode(
+            "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)",
+            TextType.NORMAL,
+        )
+        new_nodes = split_nodes_links([node])
+        expected = [
+            TextNode("This is text with a link ", TextType.NORMAL),
+            TextNode("to boot dev", TextType.LINK, "https://www.boot.dev"),
+            TextNode(" and ", TextType.NORMAL),
+            TextNode(
+                "to youtube", TextType.LINK, "https://www.youtube.com/@bootdotdev"
+            ),
+        ]
+        self.assertEqual(new_nodes, expected)
 
 if __name__ == "__main__":
     unittest.main()

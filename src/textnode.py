@@ -71,3 +71,35 @@ def extract_markdown_images(text: str) -> list[tuple[str, str]]:
 
 def extract_markdown_links(text: str) -> list[tuple[str, str]]:
     return re.findall(r"[^!]\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
+
+def split_nodes_images(old_nodes: list[TextNode]) -> list[TextNode]:
+    new_nodes = []
+    for node in old_nodes:
+        if node.text_type != TextType.NORMAL:
+            continue
+
+        tuples = extract_markdown_images(node.text)
+        text = node.text
+        for t in tuples:
+            sections = text.split(f"![{t[0]}]({t[1]})", 1)
+            new_nodes.append(TextNode(sections[0], TextType.NORMAL))
+            new_nodes.append(TextNode(t[0], TextType.IMAGE, t[1]))
+            text = sections[1]
+
+    return new_nodes
+
+def split_nodes_links(old_nodes: list[TextNode]) -> list[TextNode]:
+    new_nodes = []
+    for node in old_nodes:
+        if node.text_type != TextType.NORMAL:
+            continue
+
+        tuples = extract_markdown_links(node.text)
+        text = node.text
+        for t in tuples:
+            sections = text.split(f"[{t[0]}]({t[1]})", 1)
+            new_nodes.append(TextNode(sections[0], TextType.NORMAL))
+            new_nodes.append(TextNode(t[0], TextType.LINK, t[1]))
+            text = sections[1]
+
+    return new_nodes
