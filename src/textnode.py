@@ -76,9 +76,14 @@ def split_nodes_images(old_nodes: list[TextNode]) -> list[TextNode]:
     new_nodes = []
     for node in old_nodes:
         if node.text_type != TextType.NORMAL:
+            new_nodes.append(node)
             continue
 
         tuples = extract_markdown_images(node.text)
+        if len(tuples) == 0:
+            new_nodes.append(node)
+            continue
+
         text = node.text
         for t in tuples:
             sections = text.split(f"![{t[0]}]({t[1]})", 1)
@@ -86,15 +91,23 @@ def split_nodes_images(old_nodes: list[TextNode]) -> list[TextNode]:
             new_nodes.append(TextNode(t[0], TextType.IMAGE, t[1]))
             text = sections[1]
 
+        if text != "":
+            new_nodes.append(TextNode(text, TextType.NORMAL))
+
     return new_nodes
 
 def split_nodes_links(old_nodes: list[TextNode]) -> list[TextNode]:
     new_nodes = []
     for node in old_nodes:
         if node.text_type != TextType.NORMAL:
+            new_nodes.append(node)
             continue
 
         tuples = extract_markdown_links(node.text)
+        if len(tuples) == 0:
+            new_nodes.append(node)
+            continue
+
         text = node.text
         for t in tuples:
             sections = text.split(f"[{t[0]}]({t[1]})", 1)
@@ -102,4 +115,16 @@ def split_nodes_links(old_nodes: list[TextNode]) -> list[TextNode]:
             new_nodes.append(TextNode(t[0], TextType.LINK, t[1]))
             text = sections[1]
 
+        if text != "":
+            new_nodes.append(TextNode(text, TextType.NORMAL))
+
     return new_nodes
+
+def text_to_textnodes(text: str) -> list[TextNode]:
+    result = split_nodes_delimiter([TextNode(text, TextType.NORMAL)], "**", TextType.BOLD)
+    result = split_nodes_delimiter(result, "*", TextType.ITALIC)
+    result = split_nodes_delimiter(result, "`", TextType.CODE)
+    result = split_nodes_images(result)
+    result = split_nodes_links(result)
+    return result
+

@@ -1,6 +1,6 @@
 import unittest
 
-from textnode import TextNode, TextType, text_node_to_html_node, split_nodes_delimiter, extract_markdown_images, extract_markdown_links, split_nodes_images, split_nodes_links
+from textnode import TextNode, TextType, text_node_to_html_node, split_nodes_delimiter, extract_markdown_images, extract_markdown_links, split_nodes_images, split_nodes_links, text_to_textnodes
 
 
 class TestTextNode(unittest.TestCase):
@@ -123,6 +123,40 @@ class TestTextNode(unittest.TestCase):
             ),
         ]
         self.assertEqual(new_nodes, expected)
+
+    def test_split_nodes_images_and_links(self):
+        node = TextNode(
+            "This is text with an image ![boot dev favicon](https://www.boot.dev/favicon.ico) and ![dev boot favicon](https://www.dev.boot/favicon.ico) and [to boot dev](https://www.boot.dev)",
+            TextType.NORMAL,
+        )
+        new_nodes = split_nodes_images([node])
+        new_nodes = split_nodes_links(new_nodes)
+        expected = [
+            TextNode("This is text with an image ", TextType.NORMAL),
+            TextNode("boot dev favicon", TextType.IMAGE, "https://www.boot.dev/favicon.ico"),
+            TextNode(" and ", TextType.NORMAL),
+            TextNode("dev boot favicon", TextType.IMAGE, "https://www.dev.boot/favicon.ico"),
+            TextNode(" and ", TextType.NORMAL),
+            TextNode("to boot dev", TextType.LINK, "https://www.boot.dev"),
+        ]
+        self.assertEqual(new_nodes, expected)
+
+    def test_text_to_textnodes(self):
+        input = "This is **text** with an *italic* word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
+        nodes = text_to_textnodes(input)
+        expected = [
+            TextNode("This is ", TextType.NORMAL),
+            TextNode("text", TextType.BOLD),
+            TextNode(" with an ", TextType.NORMAL),
+            TextNode("italic", TextType.ITALIC),
+            TextNode(" word and a ", TextType.NORMAL),
+            TextNode("code block", TextType.CODE),
+            TextNode(" and an ", TextType.NORMAL),
+            TextNode("obi wan image", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"),
+            TextNode(" and a ", TextType.NORMAL),
+            TextNode("link", TextType.LINK, "https://boot.dev"),
+        ]
+        self.assertEqual(nodes, expected)
 
 if __name__ == "__main__":
     unittest.main()
