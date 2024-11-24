@@ -23,7 +23,7 @@ def markdown_to_html_node(markdown: str) -> ParentNode:
                 if heading_depth > 6:
                     heading_depth = 6
 
-                node = LeafNode(f"h{heading_depth}", b[heading_depth + 1:])
+                node = ParentNode(f"h{heading_depth}", text_to_children(b[heading_depth + 1:]))
                 top_nodes.append(node)
 
             case BlockType.PARAGRAPH:

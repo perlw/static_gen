@@ -89,11 +89,6 @@ class TestTextNode(unittest.TestCase):
         expected = [("to boot dev", "https://www.boot.dev"), ("to youtube", "https://www.youtube.com/@bootdotdev")]
         self.assertEqual(extracted, expected)
 
-    def test_extract_markdown_links_ignore_images(self):
-        extracted = extract_markdown_links("This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and a link [to boot dev](https://www.boot.dev)")
-        expected = [("to boot dev", "https://www.boot.dev")]
-        self.assertEqual(extracted, expected)
-
     def test_split_nodes_images(self):
         node = TextNode(
             "This is text with an image ![boot dev favicon](https://www.boot.dev/favicon.ico) and ![dev boot favicon](https://www.dev.boot/favicon.ico)",

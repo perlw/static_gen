@@ -27,7 +27,9 @@ class TestBlock(unittest.TestCase):
     def test_to_blocks(self):
         result = markdown_to_html_node(markdown)
         expected = ParentNode("div", [
-            LeafNode("h1", "This is a heading"),
+            ParentNode("h1", [
+                LeafNode(None, "This is a heading"),
+            ]),
             ParentNode("p", [
                 LeafNode(None, "This is a paragraph of text. It has some "),
                 LeafNode("b", "bold"),

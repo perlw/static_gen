@@ -44,11 +44,20 @@ def generate_page(from_path: str, template_path: str, dest_path: str):
     except Exception as e:
         print(f"could not open {dest_path}: {e}")
 
+def generate_page_recursive(dir_path_content: str, template_path: str, dest_dir_path: str):
+    for path in os.listdir(dir_path_content):
+        full_content_path = os.path.join(dir_path_content, path)
+        full_dest_path = os.path.join(dest_dir_path, path)
+        if os.path.isdir(full_content_path):
+            generate_page_recursive(full_content_path, template_path, full_dest_path)
+        elif os.path.isfile(full_content_path):
+            generate_page(full_content_path, "./template.html", full_dest_path[:-2] + "html")
+
 def main():
     if os.path.exists("./public"):
         shutil.rmtree("./public")
     copy_static_files("./static", "./public")
-    generate_page("./content/index.md", "./template.html", "./public/index.html")
+    generate_page_recursive("./content", "./template.html", "./public")
 
 
 if __name__ == "__main__":
