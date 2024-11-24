@@ -1,7 +1,7 @@
 import unittest
 
 from htmlnode import ParentNode, LeafNode
-from markdown import markdown_to_html_node
+from markdown import markdown_to_html_node, extract_title
 
 markdown = '''# This is a heading
 
@@ -62,3 +62,14 @@ class TestBlock(unittest.TestCase):
             ]),
         ])
         self.assertEqual(result, expected)
+
+    def test_extract_title(self):
+        result = extract_title("# Test Title\nFoo bar")
+        expected = "Test Title"
+        self.assertEqual(result, expected)
+
+    def test_extract_title_missing(self):
+        self.assertRaises(Exception, extract_title, "Foo bar")
+
+if __name__ == "__main__":
+    unittest.main()

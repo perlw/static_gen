@@ -57,3 +57,9 @@ def markdown_to_html_node(markdown: str) -> ParentNode:
 
     root = ParentNode("div", top_nodes)
     return root
+
+def extract_title(markdown: str) -> str:
+    line = markdown.splitlines()[0]
+    if line[0] != '#':
+        raise Exception("missing title")
+    return line[2:].strip()
